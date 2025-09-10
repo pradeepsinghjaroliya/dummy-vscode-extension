@@ -1,16 +1,32 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue';
+import ChatInterface from './components/ChatInterface.vue';
 </script>
 
 <template>
-  <div class="container">
-    <HelloWorld />
+  <div class="app">
+    <ChatInterface />
   </div>
 </template>
 
 <style>
-.container {
-  color: var(--vscode-foreground);
-  font-family: var(--vscode-font-family);
+.app {
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Reset default styles for the chat interface */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+#app {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
 }
 </style>
