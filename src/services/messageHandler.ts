@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { FromWebviewMessage, ToWebviewMessage } from '../interfaces/messages';
 import { ExtensionState } from '../interfaces/state';
 import { StateManager } from './stateManager';
+import { ConfigLoader } from '../utilities/configLoader';
 
 export class MessageHandler {
   private state: ExtensionState;
@@ -24,7 +25,8 @@ export class MessageHandler {
       isLoading: this.state.isLoading,
       messagesLoading: this.state.messagesLoading,
       error: this.state.error || undefined,
-      messagesError: this.state.messagesError || undefined
+      messagesError: this.state.messagesError || undefined,
+      configStatus: this.getConfigStatus()
     });
   }
 
@@ -78,7 +80,7 @@ export class MessageHandler {
           // Use Node.js https module for API calls in VSCode extension
           const https = require('https');
           const url = require('url');
-          const spaceId = ''; // Replace with actual space ID or parameterize as needed
+          const spaceId = 'AAAACtu6B6Q'; // Replace with actual space ID or parameterize as needed
           const apiUrl = `https://chat.googleapis.com/v1/spaces/${spaceId}`;
           const urlParts = url.parse(apiUrl);
           
@@ -405,6 +407,29 @@ export class MessageHandler {
         messagesError: this.state.messagesError
       });
     }
+  }
+
+  private getConfigStatus() {
+    const configStatus = ConfigLoader.checkConfigStatus();
+    const hasConfigFile = configStatus.configFileExists;
+    const configToken = ConfigLoader.getAccessToken();
+    const storedToken = this.state.accessToken;
+    
+    let tokenSource: 'config' | 'manual' | 'none';
+    if (configToken) {
+      tokenSource = 'config';
+    } else if (storedToken) {
+      tokenSource = 'manual';
+    } else {
+      tokenSource = 'none';
+    }
+
+    return {
+      hasConfigFile,
+      tokenSource,
+      configPath: hasConfigFile ? configStatus.configPath : undefined,
+      setupInstructions: hasConfigFile ? undefined : ConfigLoader.getSetupInstructions()
+    };
   }
 
   private sendToWebview(message: ToWebviewMessage): void {

@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { ExtensionState, DEFAULT_STATE } from '../interfaces/state';
+import { ConfigLoader } from '../utilities/configLoader';
 
 export class StateManager {
   constructor(private readonly context: vscode.ExtensionContext) {}
@@ -8,9 +9,14 @@ export class StateManager {
    * Load state from storage
    */
   loadState(): ExtensionState {
+    // Try to load access token from config file first, fallback to stored state
+    const configToken = ConfigLoader.getAccessToken();
+    const storedToken = this.context.globalState.get<string | null>('accessToken', DEFAULT_STATE.accessToken);
+    const accessToken = configToken || storedToken;
+
     return {
       clickCount: this.context.globalState.get<number>('clickCount', DEFAULT_STATE.clickCount),
-      accessToken: this.context.globalState.get<string | null>('accessToken', DEFAULT_STATE.accessToken),
+      accessToken: accessToken,
       joinedSpaces: this.context.globalState.get('joinedSpaces', DEFAULT_STATE.joinedSpaces),
       searchQuery: this.context.globalState.get<string>('searchQuery', DEFAULT_STATE.searchQuery),
       selectedSpace: this.context.globalState.get('selectedSpace', DEFAULT_STATE.selectedSpace),

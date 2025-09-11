@@ -54,4 +54,10 @@ export interface ToWebviewMessage {
   error?: string;
   messagesError?: string;
   accessToken?: string;
+  configStatus?: {
+    hasConfigFile: boolean;
+    tokenSource: 'config' | 'manual' | 'none';
+    configPath?: string;
+    setupInstructions?: string;
+  };
 }
